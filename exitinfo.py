@@ -47,7 +47,6 @@ class ExitInfo(object):
 
     def survey(self):
         """Extract captured exited process and its state from pidDict"""
-        # TODO
         success_cases = []
         failure_cases = []
         latency = []

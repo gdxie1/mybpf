@@ -115,7 +115,7 @@ def stat_event(cpu, data, size):
             # print("captured a process %s %s" % (event.comm, event.argv))
             argv_v = argv[event.pid]
             # TODO change checking /usr/bin/python to checking comm
-            if argv_v and len(argv_v) >1 and argv_v[0] == b'/usr/bin/python' and argv_v[1] == b'test.py':
+            if argv_v and len(argv_v) > 1 and argv_v[0] == b'/usr/bin/python' and argv_v[1] == b'test.py':
                 # no matter if we are able to create a UsdtInfo, we need to keep those pid
                 # as some python script may terminate in very short time.
                 exitinfo.addPid(event.pid)

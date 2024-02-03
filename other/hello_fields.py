@@ -19,7 +19,7 @@ int do_ret_sys_execve(struct pt_regs *ctx) {
 
 # load BPF program
 b = BPF(text=prog)
-# execve_fnname = b.get_syscall_fnname("execve")
+# execve_fnname = bpfEntry.get_syscall_fnname("execve")
 
 b.attach_kretprobe(event=b.get_syscall_fnname("execve"), fn_name="do_ret_sys_execve")
 
@@ -34,4 +34,4 @@ while 1:
         continue
     except KeyboardInterrupt:
         exit()
-    printb(b"%-18.9f %-20s %-6d %s" % (ts, task, pid, msg))
+    printb(bpfEntry"%-18.9f %-20s %-6d %s" % (ts, task, pid, msg))

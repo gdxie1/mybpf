@@ -263,7 +263,7 @@ def print_event(cpu, data, size):
     skip = False
 
     if event.type == EventType.EVENT_ARG:
-        # argv[event.pid].append(event.argv +b":"+ str(len(argv[event.pid])).encode("ASCII"))
+        # argv[event.pid].append(event.argv +bpfEntry":"+ str(len(argv[event.pid])).encode("ASCII"))
         argv[event.pid].append(event.argv)
     elif event.type == EventType.EVENT_RET:
         if event.retval != 0 and not args.fails:
@@ -271,25 +271,25 @@ def print_event(cpu, data, size):
         if args.name and not re.search(bytes(args.name), event.comm):
             skip = True
         if args.line and not re.search(bytes(args.line),
-                                       b' '.join(argv[event.pid])):
+                                       bpfEntry' '.join(argv[event.pid])):
             skip = True
         if args.quote:
             argv[event.pid] = [
-                b"\"" + arg.replace(b"\"", b"\\\"") + b"\""
+                bpfEntry"\"" + arg.replace(bpfEntry"\"", bpfEntry"\\\"") + bpfEntry"\""
                 for arg in argv[event.pid]
             ]
 
         if not skip:
             if args.time:
-                printb(b"%-9s" % strftime("%H:%M:%S").encode('ascii'), nl="")
+                printb(bpfEntry"%-9s" % strftime("%H:%M:%S").encode('ascii'), nl="")
             if args.timestamp:
-                printb(b"%-8.3f" % (time.time() - start_ts), nl="")
+                printb(bpfEntry"%-8.3f" % (time.time() - start_ts), nl="")
             if args.print_uid:
-                printb(b"%-6d" % event.uid, nl="")
+                printb(bpfEntry"%-6d" % event.uid, nl="")
             ppid = event.ppid if event.ppid > 0 else get_ppid(event.pid)
-            ppid = b"%d" % ppid if ppid > 0 else b"?"
-            argv_text = b' '.join(argv[event.pid]).replace(b'\n', b'\\n')
-            printb(b"%-16s %-7d %-7s %3d %s" % (event.comm, event.pid,
+            ppid = bpfEntry"%d" % ppid if ppid > 0 else bpfEntry"?"
+            argv_text = bpfEntry' '.join(argv[event.pid]).replace(bpfEntry'\n', bpfEntry'\\n')
+            printb(bpfEntry"%-16s %-7d %-7s %3d %s" % (event.comm, event.pid,
                                                 ppid, event.retval, argv_text))
         try:
             del (argv[event.pid])
@@ -316,7 +316,7 @@ def stat_event(cpu, data, size):
             # print(argv)
             # print("captured a process %s %s" % (event.comm, event.argv))
             argv_v = argv[event.pid]
-            if argv_v and argv_v[0] == b'/usr/bin/python' and argv_v[1] == b'test.py':
+            if argv_v and argv_v[0] == bpfEntry'/usr/bin/python' and argv_v[1] == bpfEntry'test.py':
                 usdt = USDT(pid=event.pid)
                 usdt.enable_probe_or_bail("function__entry", "trace_entry")
                 usdt.enable_probe_or_bail("function__return", "trace_return")
@@ -334,7 +334,7 @@ def stat_event(cpu, data, size):
 
 def get_data(bpf_pid):
     # Will be empty when no language was specified for tracing
-    # bpf = processInfo[]
+    # bpf = bpfUsdtInfo[]
     data = list(map(lambda kv: (kv[0].clazz.decode('utf-8', 'replace') \
                                 + "." + \
                                 kv[0].method.decode('utf-8', 'replace'),

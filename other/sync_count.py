@@ -33,7 +33,7 @@ start = 0
 while 1:
     try:
         (task, pid, cpu, flags, ts, ms) = bpf.trace_fields()
-        printb(b"Count of sync is %s" % ms)
+        printb(bpfEntry"Count of sync is %s" % ms)
     except KeyboardInterrupt:
         exit()
 

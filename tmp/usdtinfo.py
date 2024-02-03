@@ -12,7 +12,7 @@ class UsdtInfo(object):
 
     def pull_data(self, count):
         """ Pulls data from the queue in kernel"""
-        q_call = self.bpf[b'q_call']
+        q_call = self.bpf[bpfEntry'q_call']
         # Everytime, just pull 100 events
         # the loop will break in advance if the queue is empty
         for i in range(count):

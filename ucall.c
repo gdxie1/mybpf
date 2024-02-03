@@ -17,7 +17,7 @@ BPF_QUEUE(q_call, struct call_t, 1024);
 BPF_HASH(entry, u64, u64);
 
 static inline bool prefix_method(char * actual){
-    char expected [] = "factorial";
+    char expected [] = "METHODNAME";
     for (int i = 0; i < sizeof(expected) - 1; ++i) {
         if (expected[i] != actual[i]) {
             return false;

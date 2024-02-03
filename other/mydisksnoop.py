@@ -62,10 +62,10 @@ void trace_completion(struct pt_regs *ctx, struct request *req) {
 }
 """)
 
-if BPF.get_kprobe_functions(b'blk_start_request'):
+if BPF.get_kprobe_functions(bpfEntry'blk_start_request'):
     b.attach_kprobe(event="blk_start_request", fn_name="trace_start")
 b.attach_kprobe(event="blk_mq_start_request", fn_name="trace_start")
-if BPF.get_kprobe_functions(b'__blk_account_io_done'):
+if BPF.get_kprobe_functions(bpfEntry'__blk_account_io_done'):
     b.attach_kprobe(event="__blk_account_io_done", fn_name="trace_completion")
 else:
     b.attach_kprobe(event="blk_mq_end_request", fn_name="trace_completion")
@@ -79,35 +79,35 @@ def print_event(cpu, data, size):
     event = b["events"].event(data)
     bytes_s = event.data_len;
     if event.flag & REQ_WRITE:
-        type_s = b"W"
+        type_s = bpfEntry"W"
     elif bytes_s == "0":  # see blk_fill_rwbs() for logic
-        type_s = b"M"
+        type_s = bpfEntry"M"
     else:
-        type_s = b"R"
+        type_s = bpfEntry"R"
     la = event.latency/1000
     ts = event.ts/1000000
     pid = event.pid
     task = event.comm
-    printb(b"%-18.9f %-2s %-7d %-8.2f %-10d %s" % (ts, type_s, bytes_s, la, pid, task))
-    # printb(b"%-18.9f %-2s" % (ts, type_s))
+    printb(bpfEntry"%-18.9f %-2s %-7d %-8.2f %-10d %s" % (ts, type_s, bytes_s, la, pid, task))
+    # printb(bpfEntry"%-18.9f %-2s" % (ts, type_s))
 
 b["events"].open_perf_buffer(print_event)
 # format output
 while 1:
     try:
         b.perf_buffer_poll()
-        # # (task, pid, cpu, flags, ts, msg) = b.trace_fields()
+        # # (task, pid, cpu, flags, ts, msg) = bpfEntry.trace_fields()
         # # (bytes_s, bflags_s, us_s) = msg.split()
         #
         # if int(bflags_s, 16) & REQ_WRITE:
-        #     type_s = b"W"
+        #     type_s = bpfEntry"W"
         # elif bytes_s == "0":  # see blk_fill_rwbs() for logic
-        #     type_s = b"M"
+        #     type_s = bpfEntry"M"
         # else:
-        #     type_s = b"R"
+        #     type_s = bpfEntry"R"
         # ms = float(int(us_s, 10)) / 1000
         #
-        # printb(b"%-18.9f %-2s %-7s %8.2f %-10d %s" % (ts, type_s, bytes_s, ms, pid, task))
+        # printb(bpfEntry"%-18.9f %-2s %-7s %8.2f %-10d %s" % (ts, type_s, bytes_s, ms, pid, task))
     except KeyboardInterrupt:
         break
         # exit()

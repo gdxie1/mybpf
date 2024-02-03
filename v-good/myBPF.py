@@ -166,9 +166,9 @@ def stat_event(cpu, data, size):
             pass
 
 # def pull_data(count: int = 100):
-#     for pid in processInfo:
-#         # get the dict for a pid   processInfo[event.pid] = {'usdt': usdt, 'bpf': bpf, 'data': [xxx]}
-#         pidData = processInfo.get(pid, None)
+#     for pid in bpfUsdtInfo:
+#         # get the dict for a pid   bpfUsdtInfo[event.pid] = {'usdt': usdt, 'bpf': bpf, 'data': [xxx]}
+#         pidData = bpfUsdtInfo.get(pid, None)
 #         if pidData is not None and pidData['bpf'] is not None:
 #             q_call = pidData['bpf'][b'q_call']
 #             # Everytime, just pull 100 events
@@ -212,7 +212,7 @@ for usdtInfo in processInfo.values():
     # try to pull all remaining data
     usdtInfo.pull_data(10240)
     print("\nPID %d -------------------" % usdtInfo.pid)
-    # get the dict for a pid   processInfo[event.pid] = {'usdt': usdt, 'bpf': bpf, 'data': [xxx]}
+    # get the dict for a pid   bpfUsdtInfo[event.pid] = {'usdt': usdt, 'bpf': bpf, 'data': [xxx]}
     # for call_t in usdtInfo.trace_data:
     #     print(call_t.clazz.decode('ascii'), call_t.method.decode('ascii'), call_t.depth, call_t.ts)
     method_latency, unique_path = usdtInfo.survey_method(args.name)

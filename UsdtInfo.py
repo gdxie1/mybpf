@@ -12,7 +12,7 @@ class UsdtInfo(object):
         self.bpf = BPF(text=src_text, usdt_contexts=[self.usdt])
         self.trace_data = []
 
-    def print_last_call_t(self):
+    def print_last_event(self):
         if len(self.trace_data) == 0:
             return
         call_t = self.trace_data[-1]
@@ -51,14 +51,6 @@ class UsdtInfo(object):
                 i+=1
             unique_path.add(call_path)
 
-            # for i in range(i_entry, i_ret+1):
-            #     call_t = self.trace_data[i]
-            #     depth =call_t.depth
-            #     if call_t.dir == 0 and i+1 <= i_ret and self.trace_data[i+1].dir == 1:
-            #
-            #     direction = "<- " if call_t.dir else "-> "
-            #     path = "  " * (depth - 1) + direction + call_t.method.decode('utf-8', 'replace') + "\n"
-            #     call_path += path
         return method_latency, unique_path
 
     def pull_data(self, count=100):

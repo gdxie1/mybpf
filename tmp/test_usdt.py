@@ -1,4 +1,4 @@
-from bcc import BPF, USDTException
+from bcc import BPF, USDT, USDTException
 from bcc.containers import filter_by_containers
 from bcc.utils import ArgString, printb
 import argparse
@@ -49,12 +49,12 @@ parser.add_argument("--mntnsmap",
 args = parser.parse_args()
 
 # open execve probe program
-with open('pystart.c', 'r') as input_file:
+with open('../v-good/pystart.c', 'r') as input_file:
     bpf_text = input_file.read()
 bpf_text = bpf_text.replace("MAXARG", args.max_args)
 bpf_text = filter_by_containers(args) + bpf_text
 # open usdt probe program
-with open('ucall.c', 'r') as input_file:
+with open('../v-good/ucall.c', 'r') as input_file:
     ucall_text = input_file .read()
 args.name = 'factorial'
 ucall_text = ucall_text.replace("METHODNAME", args.name)
@@ -65,14 +65,17 @@ execve_fnname = b.get_syscall_fnname("execve")
 b.attach_kprobe(event=execve_fnname, fn_name="syscall__execve")
 b.attach_kretprobe(event=execve_fnname, fn_name="do_ret_sys_execve")
 
+usdt = USDT(path="/bin/python3.10")
+usdt.enable_probe_or_bail("function__entry", "trace_entry")
+usdt.enable_probe_or_bail("function__return", "trace_return")
+bpf = BPF(text=ucall_text, usdt_contexts=[usdt])
+
 # header
 print("%-8s %-6s %-16s %-7s %-7s %3s %s" % ("UID", "TIME(ms)", "PCOMM", "PID", "PPID", "RET", "ARGS"))
-
 
 class EventType(object):
     EVENT_ARG = 0
     EVENT_RET = 1
-
 
 start_ts = time.time()
 argv = defaultdict(list)
@@ -137,11 +140,6 @@ def print_event(cpu, data, size):
 # now we only consider 1 process
 processInfo = {}
 
-
-# usdt = USDT(pid=args.pid)
-# usdt.enable_probe_or_bail("function__entry", "trace_entry")
-# usdt.enable_probe_or_bail("function__return", "trace_return")
-
 # process event
 def stat_event(cpu, data, size):
     event = b["events"].event(data)
@@ -154,16 +152,7 @@ def stat_event(cpu, data, size):
             argv_v = argv[event.pid]
             if argv_v and argv_v[0] == bpfEntry'/usr/bin/python' and argv_v[1] == bpfEntry'test.py':
                 try:
-                    usdtInfo = UsdtInfo(event.pid, ucall_text)
-                    processInfo[event.pid] = usdtInfo
-                    printb(bpfEntry"%-6d" % event.uid, nl="")
-                    printb(bpfEntry"%-9s" % strftime("%H:%M:%S").encode('ascii'), nl="")
-                    ppid = event.ppid if event.ppid > 0 else get_ppid(event.pid)
-                    ppid = bpfEntry"%d" % ppid if ppid > 0 else bpfEntry"?"
-                    argv_text = bpfEntry' '.join(argv[event.pid]).replace(bpfEntry'\n', bpfEntry'\\n')
-                    printb(bpfEntry"%-16s %-7d %-7s %3d %s" % (event.comm, event.pid,
-                                                        ppid, event.retval, argv_text))
-                    # print(f"captured python test.py process {event.pid}")
+                    processInfo[event.pid] = event.pid
                 except USDTException as e:
                     pass
         # TODO   remove the accumulated argv if a process exit
@@ -171,21 +160,6 @@ def stat_event(cpu, data, size):
             del (argv[event.pid])
         except Exception:
             pass
-
-
-# def test_pull_data(count: int = 100):
-#     for usdtInfo in bpfUsdtInfo.values():
-#         q_call =usdtInfo.bpf[bpfEntry'q_call']
-#         # Everytime, just pull 100 events
-#         # the loop will break in advance if the queue is empty
-#         for i in range(count):
-#             try:
-#                 call_t = q_call.pop()
-#                 print(call_t)
-#                 usdtInfo.trace_data.append(call_t)
-#             except KeyError:
-#                 break
-#
 
 # def pull_data(count: int = 100):
 #     for pid in bpfUsdtInfo:
@@ -211,20 +185,19 @@ while 1:
         b.perf_buffer_poll(10)
         # sleep(args, interval)
         # wait the python script to run and populates some calling data
-        sleep(5)
+        sleep(1)
     except KeyboardInterrupt:
         exit_signaled = True
         break
     # test_pull_data()
-    for usdtInfo in processInfo.values():
-        usdtInfo.pull_data()
 
-# start to process the pool
-# pull all the data
-for usdtInfo in processInfo.values():
-    # try to pull all remaining data
-    usdtInfo.pull_data(10240)
-    print("PID %d -------------------" % usdtInfo.pid)
-    # get the dict for a pid   bpfUsdtInfo[event.pid] = {'usdt': usdt, 'bpf': bpf, 'data': [xxx]}
-    for call_t in usdtInfo.trace_data:
-        print(call_t.clazz.decode('ascii'), call_t.method.decode('ascii'), call_t.depth, call_t.ts)
+    q_call = bpf[bpfEntry'q_call']
+    # Everytime, just pull 100 events
+    # the loop will break in advance if the queue is empty
+
+    for i in range(100):
+        try:
+            call_t = q_call.pop()
+            print(call_t.method.decode('ascii'))
+        except KeyError:
+            break

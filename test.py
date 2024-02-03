@@ -1,4 +1,5 @@
 import random
+import time
 
 
 def dummy():
@@ -29,15 +30,21 @@ def factorial(num: int = 1) -> int:
 def main():
     while 1:
         try:
-            str_num = input("Enter a number: ")
+            str_num = input("Enter count you want to iterate of factorial: ")
+            num = int(str_num)
+            if num < 0:
+                raise ValueError
+            time.sleep(2)
             for i in range(int(str_num)):
                 num = random.randint(-3, 10)
                 print("the num for factorial is  %d" % num)
                 print(factorial(num))
+            exit(0)
         except ValueError:
             print('Please enter positive number representing the count of random value for a factorial')
+            exit(-1)
         except KeyboardInterrupt:
-            exit(0)
+            exit(1)
 
 
 # Press the green button in the gutter to run the script.

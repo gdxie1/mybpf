@@ -62,8 +62,8 @@ print("Tracing for quick sync's... Ctrl-C to end")
 
 def print_event(cup, data, size):
     event = b["events"].event(data)
-    # print(b"%-18.9f %-16s %-6d %s" % (event.ts, event.comm, event.pid, b"Hello, pef_output"))
-    msg_output = b"%-18.9f %-16s %-6d %s" % (event.ts, event.comm, event.pid, b"Hello, pef_output")
+    # print(bpfEntry"%-18.9f %-16s %-6d %s" % (event.ts, event.comm, event.pid, bpfEntry"Hello, pef_output"))
+    msg_output = bpfEntry"%-18.9f %-16s %-6d %s" % (event.ts, event.comm, event.pid, bpfEntry"Hello, pef_output")
     print(msg_output.decode('ASCII'))
 
 # connect the print_event with the events inside the buffer
